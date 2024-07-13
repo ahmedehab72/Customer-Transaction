@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 const Customer = ({ onSelectCustomer }) => {
@@ -37,6 +37,16 @@ const Customer = ({ onSelectCustomer }) => {
     setFilteredData(filtered);
   };
 
+  const uniqueCustomers = Array.from(new Set(filteredData.map(t => t.customer_id)))
+    .map(id => {
+      const transaction = filteredData.find(t => t.customer_id === id);
+      const customer = customers.find(c => c.id === id);
+      return {
+        ...transaction,
+        customerName: customer ? customer.name : "Unknown"
+      };
+    });
+
   return (
     <div className="w-[90%] mx-auto mt-8">
       <h2 className="my-4 text-center text-4xl font-bold">Customer Service</h2>
@@ -59,27 +69,24 @@ const Customer = ({ onSelectCustomer }) => {
           </tr>
         </thead>
         <tbody className="mt-5">
-          {filteredData.map((transaction) => {
-            const customer = customers.find((c) => c.id === transaction.customer_id);
-            return (
-              <tr key={transaction.id}>
-                <td className="py-2 px-4 border-b text-center">
-                  <input
-                    type="radio"
-                    name="selectedCustomer"
-                    value={transaction.customer_id}
-                    onChange={() => onSelectCustomer(transaction.customer_id)}
-                  />
-                </td>
-                <td className="py-2 px-4 border-b text-center">{transaction.id}</td>
-                <td className="py-2 px-4 border-b text-center">
-                  {customer ? customer.name : "Unknown"}
-                </td>
-                <td className="py-2 px-4 border-b text-center">{transaction.date}</td>
-                <td className="py-2 px-4 border-b text-center">{transaction.amount}</td>
-              </tr>
-            );
-          })}
+          {uniqueCustomers.map((transaction) => (
+            <tr key={transaction.id}>
+              <td className="py-2 px-4 border-b text-center">
+                <input
+                  type="radio"
+                  name="selectedCustomer"
+                  value={transaction.customer_id}
+                  onChange={() => onSelectCustomer(transaction.customer_id)}
+                />
+              </td>
+              <td className="py-2 px-4 border-b text-center">{transaction.customer_id}</td>
+              <td className="py-2 px-4 border-b text-center">
+                {transaction.customerName}
+              </td>
+              <td className="py-2 px-4 border-b text-center">{transaction.date}</td>
+              <td className="py-2 px-4 border-b text-center">{transaction.amount}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
